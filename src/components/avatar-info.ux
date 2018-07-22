@@ -1,0 +1,78 @@
+<template>
+  <div class="item-info">
+    <image src="https:{{ avatar }}"></image>
+
+    <div class="inner-info">
+      <text class="inner-username">{{ username }}</text>
+      <div class="inner-time">
+        <text>{{ formatTime(created) }}</text>
+        <slot></slot>
+        <text class="inner-common">评论{{ relies }}</text>
+      </div>
+    </div>
+
+    <div class="inner-theme">
+      <text>{{ node }}</text>
+    </div>
+  </div>
+</template>
+
+<script>
+  import utils from '../utils/index'
+
+  export default {
+    props: ['avatar', 'username', 'created', 'relies', 'node'],
+    formatTime: utils.formatTime
+  }
+</script>
+
+<style lang="less">
+  .item-info {
+    flex: 1;
+    width: 100%;
+    padding-bottom: 6px;
+    
+    image {
+      width: 80px;
+      height: 80px;
+      margin-right: 14px;
+      border-radius: 40px;
+    }
+
+    .inner-info {
+      flex: 1;
+      width: 100%;
+      flex-direction: column;
+
+      .inner-username {
+        lines: 1;
+        text-overflow: ellipsis;
+        color: #555555;
+        padding-left: 4px;
+      }
+
+      .inner-time {
+
+        text {
+          color: #cccccc;
+          font-size: 26px;
+        }
+      }
+    }
+
+    .inner-common {
+      margin-left: 10px;
+      padding-left: 10px;
+    }
+    
+    .inner-theme {
+      align-items: flex-start;
+
+      text {
+        background-color: #f5f5f5;
+        padding: 6px 10px;
+        font-size: 24px;
+      }
+    }
+  }
+</style>

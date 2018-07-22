@@ -1,0 +1,52 @@
+{
+  "package": "com.v2ex",
+  "name": "V2EX",
+  "versionName": "1.0.0",
+  "versionCode": "1",
+  "minPlatformVersion": "101",
+  "icon": "/assets/icon/logo.png",
+  "features": [
+    { "name": "system.prompt" },
+    { "name": "system.router" },
+    { "name": "system.shortcut" },
+    { "name": "system.fetch" },
+    { "name": "system.storage" },
+    { "name": "system.share" },
+    {"name": "system.network"}
+  ],
+  "permissions": [
+    { "origin": "*" }
+  ],
+  "config": {
+    "logLevel": "debug"
+  },
+  "router": {
+    "entry": "pages/home",
+    "pages": {
+      "pages/home": {
+        "component": "index"
+      },
+      "pages/post-detail": {
+        "component": "index"
+      }
+    }
+  },
+  "display": {
+    "backgroundColor": "#ffffff",
+    "titleBarBackgroundColor": "#f4f4f4",
+    "titleBarTextColor": "#555555",
+    "menu": false,
+    "titleBar": false,
+    "pages": {
+      "home": {
+        "titleBarText": "V2EX",
+        "titleBar": false
+      },
+      "pages/post-detail": {
+        "titleBarText": "话题",
+        "menu": true,
+        "titleBar": true
+      }
+    }
+  }
+}

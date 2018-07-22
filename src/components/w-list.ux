@@ -1,0 +1,96 @@
+<import name="avatar-info" src="./avatar-info"></import>
+
+<template>
+  <refresh
+    refreshing="{{ refreshing }}"
+    onrefresh="onRefresh">
+    <list class="list-wrapper">
+      <block for="(index, item) in list">
+        <list-item 
+          type="common-item"
+          class="list-item"
+          onclick="gotoDetail(item)">
+          <div class="item-wrap">
+            <avatar-info
+              avatar="{{ item.member.avatar_normal }}"
+              username="{{ item.member.username }}"
+              created="{{ item.created }}"
+              relies="{{ item.replies }}"
+              node="{{ item.node.title }}">
+            </avatar-info>
+            <text class="item-title">{{ item.title }}</text>
+          </div>
+        </list-item>
+      </block>
+
+      <!-- <list-item type="loadMore" class="load-more">
+        <progress type="circular"></progress>
+        <text>加载中</text>
+      </list-item> -->
+    </list>
+  </refresh>
+</template>
+
+<script>
+  import router from '@system.router'
+
+  export default {
+    props: {
+      list: {
+        type: Array
+      },
+      refreshing: {
+        type: Boolean,
+        default: false
+      }
+    },
+    onRefresh () {
+      this.$dispatch('reload')
+    },
+    gotoDetail (item) {
+      console.log(JSON.stringify(item, null, 2))
+      router.push({
+        uri: 'pages/post-detail',
+        params: {
+          id: item.id,
+          title: item.title,
+          url: item.url,
+          content: item.content,
+          replies: item.replies,
+          username: item.member.username,
+          avatar_normal: item.member.avatar_normal,
+          nodeTitle: item.node.title,
+          created: item.created
+        }
+      })
+    }
+  }
+</script>
+
+<style lang="less">
+ .list-item {
+    width: 100%;
+    border-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: #f7f7f7;
+
+    &:active {
+      background-color: #f4f4f4;
+    }
+
+    .item-wrap {
+      flex: 1;
+      width: 100%;
+      padding: 25px;
+      flex-direction: column;
+    }
+
+    .item-title {
+      color: #616161;
+      line-height: 44px;
+      lines: 2;
+      text-overflow: ellipsis;
+      font-size: 32px;
+    }
+ }
+</style>

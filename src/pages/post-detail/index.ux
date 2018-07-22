@@ -1,0 +1,171 @@
+<import name="avatar-info" src="../../components/avatar-info"></import>
+<import name="user-reply" src="../../components/user-reply"></import>
+
+<template>
+  <!-- template里只能有一个根节点 -->
+  <div class="detail-container">
+    <div class="info-wrapper">
+      <avatar-info
+        avatar="{{ avatar_normal }}"
+        username="{{ username }}"
+        created="{{ created }}"
+        relies="{{ replies }}"
+        node="{{ nodeTitle }}">
+      </avatar-info>
+      <text class="item-title">{{ title }}</text>
+    </div>
+
+    <div if="content" class="content-wrap">
+      <text>{{ content }}</text>
+    </div>
+
+    <div if="isLoading" class="loading-wrap">
+      <progress 
+        type="circular" 
+        show="{{ isLoading }}">
+      </progress>
+    </div>
+
+    <list else scrollpage="true">
+      <block for="(index, item) in replyList">
+        <list-item type="reply-item">
+          <user-reply 
+            data="{{ item }}"
+            index="{{ index }}">
+          </user-reply>
+        </list-item>
+      </block>
+
+      <list-item 
+        class="list-end" 
+        type="is-bottom">
+        <text>全部加载完成</text>
+      </list-item>
+    </list>
+  </div>
+</template>
+
+<script>
+  import share from '@system.share'
+  import prompt from '@system.prompt'
+  import api from '../../api'
+
+  export default {
+    protected: {
+      text: '欢迎打开详情页',
+      id: '',
+      title: '',
+      url: '',
+      content: '',
+      replies: '',
+      username: '',
+      avatar_normal: '',
+      nodeTitle: '',
+      created: ''
+    },
+    public: {
+      replyList: [],
+      isLoading: true
+    },
+    onInit () {
+      this.getReplies()
+    },
+    /**
+     * 获取回复列表
+     */
+    async getReplies () {
+      try {
+        let res = await api.getPostReply(this.id, this)
+        if (res.data.code === 200) {
+          this.replyList = JSON.parse(res.data.data)
+          this.isLoading = false
+          console.log(JSON.stringify(this.replyList, null, 2))
+        }
+      } catch (error) {
+        console.error(error)
+        prompt.showToast({
+          message: '出错了'
+        })
+      }
+    },
+    /**
+     * 当用户点击菜单按钮时触发，调用app中定义的方法showMenu
+     * 注意：使用加载器测试`创建桌面快捷方式`功能时，请先在`系统设置`中打开`应用加载器`的`桌面快捷方式`权限
+     */
+    onMenuPress() {
+      this.$app.$def.showMenu([this.shareTo(this)])
+    },
+    /**
+     * 分享
+     */
+    shareTo (vmIns) {
+      let _vmIns = vmIns
+      return function () {
+        share.share({
+          type: 'text/plain',
+          data: _vmIns.url,
+          success: function (data) {
+            console.log('handling success')
+          },
+          fail: function (data, code) {
+            console.log(`handling fail, code = ${code}`)
+          }
+        })
+      }
+    }
+  }
+</script>
+
+<style lang="less">
+  .divider {
+    border-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: #f7f7f7;
+    padding-bottom: 30px;
+  }
+
+  .detail-container {
+    flex-direction: column;
+
+    .info-wrapper {
+      width: 100%;
+      padding: 25px;
+      flex-direction: column;
+    }
+
+    .item-title {
+      color: #616161;
+      line-height: 44px;
+      font-size: 32px;
+      .divider;
+    }
+
+    .content-wrap {
+      margin: 25px;
+      margin-top: 0;
+      .divider;
+
+      text {
+        line-height: 44px;
+      }
+    }
+  }
+  
+ .list-end {
+   justify-content: center;
+   align-items: center;
+   height: 100px;
+ }
+
+ .loading-wrap {
+   flex: 1;
+   justify-content: center;
+   align-items: center;
+
+   progress {
+     color: #000000;
+     width: 60px;
+     height: 60px;
+   }
+ }
+</style>

@@ -1,0 +1,76 @@
+<template>
+  <div class="comment-wrapper">
+    <image class="comment-avatar" src="https:{{ data.member.avatar_normal }}"></image>
+
+    <div class="comment-main">
+      <text class="comment-username">{{ data.member.username }}</text>
+      <text class="comment-time">{{ formatTime(data.created) }}</text>
+      <text class="comment-content">{{ data.content }}</text>
+      <text class="comment-time divider">{{ index + 1 }}楼</text>
+    </div>
+  </div>
+</template>
+
+<script>
+  import utils from '../utils/index'
+
+  export default {
+    props: {
+      data: {
+        type: Object,
+        default: () => ({})
+      },
+      index: {
+        type: Number
+      }
+    },
+    formatTime: utils.formatTime
+  }
+</script>
+
+<style lang="less">
+  .comment-wrapper {
+    padding: 25px;
+    padding-bottom: 0;
+  }
+
+  .comment-avatar {
+    width: 60px;
+    height: 60px;
+    margin-right: 14px;
+    margin-top: 10px;
+    border-radius: 30px;
+  }
+
+  .comment-main {
+    flex: 1;
+    flex-direction: column;
+
+    .comment-username {
+      lines: 1;
+      text-overflow: ellipsis;
+      color: #555555;
+      padding-left: 4px;
+    }
+
+    .comment-time {
+      color: #cccccc;
+      font-size: 24px;
+    }
+
+    .comment-content {
+      color: #616161;
+      line-height: 44px;
+      font-size: 32px;
+      padding-bottom: 20px;
+      padding-top: 8px;
+    }
+  }
+
+  .divider {
+    border-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: #f7f7f7;
+    padding-bottom: 20px;
+  }
+</style>

@@ -1,0 +1,186 @@
+<import name="w-list" src="../../components/w-list.ux"></import>
+
+<template>
+  <div class="tutorial-page">
+    <div class="title-bar">
+      <text>V2EX</text>
+    </div>
+    <div class="flexible-tabs">
+      <!-- 自定义tab-bar组件 -->
+      <div class="flexible-tabbar">
+
+        <block for="(index, item) in topicList">
+          <text
+            class="{{ currentIndex === index ? 'active' : '' }}"
+            onclick="clickTabBar(index, item)">
+            {{ item.label }}
+          </text>
+        </block>
+
+      </div>
+      <!-- 监听change事件，触发时动态修改tabs的index属性 -->
+      <tabs onchange="changeTabactive" index="{{ currentIndex }}">
+        <tab-content class="flexible-tab-content">
+          <div class="tab-container" for="(index, item) in topicList">
+            <w-list
+              list="{{ item.list }}"
+              refreshing="{{ !item.render }}">
+            </w-list>
+          </div>
+        </tab-content>
+      </tabs>
+    </div>
+  </div>
+</template>
+
+<script>
+  import prompt from '@system.prompt'
+  import storage from '@system.storage'
+  import api from '../../api'
+
+  const apiMap = ['getHotList', 'getLatestList']
+
+  export default {
+    private: {
+      topicList: [{
+        id: 'latest',
+        label: '最新',
+        list: [],
+        render: false
+      }, {
+        id: 'hot',
+        label: '最热',
+        list: [],
+        render: false
+      }],
+      currentIndex: 0
+    },
+    onInit () {
+      console.log(this.$app.network)
+      storage.get({
+        key: 'latesList',
+        success: (data) => {
+          if (!data) return
+
+          this.topicList[this.currentIndex].list = JSON.parse(data)
+        }
+      })
+      this.getListData(this.currentIndex)
+      this.$on('reload', this.onReload)
+    },
+    changeTabactive (evt) {
+      console.log('changeTabactive')
+      this.currentIndex = evt.index
+      this.getListData(this.currentIndex)
+    },
+    clickTabBar (index, item) {
+      console.log('clickTabBar')
+      this.getListData(index)
+      this.currentIndex = index
+    },
+    /**
+     * 获取列表数据
+     */
+    async getListData (index, force = false) {
+      if (!force && this.topicList[index].render) return
+
+      try {
+        let res = await api[apiMap[index]](this)
+        if (res.data.code === 200) {
+          // 存储
+          let key = index === 0 ? 'latestList' : 'hotList'
+          storage.set({
+            key,
+            value: res.data.data
+          })
+
+          this.topicList[index].list = JSON.parse(res.data.data)
+          setTimeout(() => {
+            this.topicList[index].render = true
+            prompt.showToast({
+              message: '成功'
+            })
+          }, 300)
+        }
+      } catch (error) {
+        console.error(error)
+        prompt.showToast({
+          message: '出错了'
+        })
+      }
+    },
+    renderTabContent (index) {
+      return !!this.topicList[index].render
+    },
+    onReload (e, index) {
+      this.topicList[this.currentIndex].render = false
+      this.getListData(this.currentIndex, true)
+    }
+  }
+</script>
+
+<style lang="less">
+  .tutorial-page {
+    flex: 1;
+    flex-direction: column;
+
+    .title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 64px;
+      text-align: center;
+      background-color: #f4f4f4;
+
+      text {
+        color: #555555;
+        font-size: 40px;
+        font-weight: bold;
+      }
+    }
+
+    .flexible-tabs {
+      flex: 1;
+      flex-direction: column;
+
+      .flexible-tabbar {
+        height: 100px;
+        padding: 0 30px;
+        background-color: #f4f4f4;
+        align-items: center;
+
+        text {
+          flex-grow: 1;
+          height: 100px;
+          margin: 0 30px;
+          text-align: center;
+          border: 0px solid #f1f1f1;
+          border-bottom-width: 5px;
+          color: #a2a2a2;
+        }
+        /* image {
+          height: 50px;
+          width: 50px;
+          resize-mode: contain;
+        } */
+        .active {
+          color: #616161;
+          border-bottom-color: #000;
+        }
+      }
+      .flexible-tab-content {
+        flex: 1;
+        .tab-content-section {
+          flex: 1;
+          background-color: #ffffff;
+          /* justify-content: center; */
+        }
+      }
+    }
+  }
+
+ .tab-container {
+   flex: 1;
+   flex-direction: column;
+ }
+</style>
